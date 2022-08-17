@@ -275,6 +275,9 @@ impl Client {
     pub fn groth16_verify(&self) {
         // run a circuit demo
         let (proof_c, prepared_input, qap) = initialize().unwrap();
+        println!("{:?}", proof_c);
+        println!("{:?}", prepared_input);
+        println!("{:?}", qap);
         println!("run a circuit demo, get input and proof");
         // create accounts for verify
         let mut keys = vec![];
