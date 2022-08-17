@@ -9,7 +9,7 @@ use ark_std::rand;
 use ark_std::rand::Rng;
 use num_traits::One;
 
-use crate::circuit::{mimc, Circuit, MIMC_ROUNDS};
+use crate::circuit::{mult, Circuit};
 
 mod circuit;
 
@@ -45,16 +45,13 @@ pub fn initialize() -> R1CSResult<(Vec<u8>, Vec<u8>, Vec<u8>)> {
         rand::rngs::StdRng::from_seed(seed)
     };
 
-    let constants = (0..MIMC_ROUNDS).map(|_| rng.gen()).collect::<Vec<_>>();
-
     println!("Creating parameters...");
 
     // Create parameters for our circuit
     let params = {
         let c = Circuit::<Fr> {
             xl: None,
-            xr: None,
-            constants: &constants,
+            xr: None
         };
 
         generate_random_parameters::<Bn254, _, _>(c, rng).unwrap()
@@ -65,7 +62,7 @@ pub fn initialize() -> R1CSResult<(Vec<u8>, Vec<u8>, Vec<u8>)> {
     // Generate a random preimage and compute the image
     let l = rng.gen();
     let r = rng.gen();
-    let public_inputs = mimc(l, r, &constants);
+    let public_inputs = mult(l, r);
 
     // proof_vec.truncate(0);
 
@@ -73,8 +70,7 @@ pub fn initialize() -> R1CSResult<(Vec<u8>, Vec<u8>, Vec<u8>)> {
     // witness)
     let c = Circuit {
         xl: Some(l),
-        xr: Some(r),
-        constants: &constants,
+        xr: Some(r)
     };
 
     // Create a groth16 proof with our parameters.
